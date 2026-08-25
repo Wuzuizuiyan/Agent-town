@@ -1,0 +1,58 @@
+{
+  "01 世界总览": {
+    "node_token": "QmoKwnE3Pi7wt8kso95cqyJTnOb",
+    "obj_token": "G9gadu14eoHE6PxkpBqcGfO8nLc"
+  },
+  "02 时间与空间": {
+    "node_token": "NGg1wbi32ipVHUkWx7DclMkNnhe",
+    "obj_token": "EN7ed8R0XobRRjxTLVAcvr0Gnlf"
+  },
+  "03 资源需求与工作": {
+    "node_token": "UAWYwA9zXiNsmkk51Sec5Ga6nkb",
+    "obj_token": "O0GCd2O4XoJbyVxThapcfzIxn7e"
+  },
+  "04 交易契约与声誉": {
+    "node_token": "Mu8uwpkcoiRd5nkXD3ScJ9FXnOh",
+    "obj_token": "EzS2dSRuEoZ2KVx8kvecnnffnTg"
+  },
+  "05 建设": {
+    "node_token": "SBwPwpkwViOSFpkuTTLckd0xnah",
+    "obj_token": "So3udFJxEoZByWxWas8c6Db6nSt"
+  },
+  "06 社交与情报": {
+    "node_token": "RUJUwV1eBiIMRoks1VpcoIaan2d",
+    "obj_token": "JuDpdckJeosTp4xbpUKcvsPHnjq"
+  },
+  "07 治理与公共空间": {
+    "node_token": "NzxYwax1Fi1t4Nk3llKcrqlNnie",
+    "obj_token": "Fhsudbvppo05fDx09VgcLBXJnXf"
+  },
+  "08 季节与事件": {
+    "node_token": "IU7pwXlICijSi0kMugLcaSR6n7z",
+    "obj_token": "PaNfdA3IroGYPMxvmwhcJ9kynRc"
+  },
+  "09 agent 行为集与生命周期": {
+    "node_token": "FWhHwpzlUi8tI6kWRmWcyMAmnEh",
+    "obj_token": "DTWFd0L70oxcmMxkxVAc8HyHnof"
+  },
+  "10 接入接口协议": {
+    "node_token": "O1qGwUhC7ih13lkMKmAcKpJSnQg",
+    "obj_token": "QBqKdQQtjogceJxz2VEcAX6Ln7b"
+  },
+  "11 镇内机制": {
+    "node_token": "JabIwWkOIiBIcPkzDgxcazqsnHc",
+    "obj_token": "Lt8ZdRlDIoixrFxetINcjk4Vnee"
+  },
+  "12 配置与演化": {
+    "node_token": "QpPawluQbi9OrrkrM3dchfOBn6f",
+    "obj_token": "OPBhdpsJOo7VQZxWoIrc1pO5npb"
+  },
+  "变更说明": {
+    "node_token": "D51jw6aE6ilYSqk314dcCJ8qnOe",
+    "obj_token": "JKPIdwxmLolvxCxsKjzclZDbntf"
+  },
+  "数值校验报告": {
+    "node_token": "DX5awInzFimw7Bkt7C0cE46snPc",
+    "obj_token": "HIvOd6s5kodfaax8LzOcmED5n3S"
+  }
+}
