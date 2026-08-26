@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-# Agent 小镇 策划案自审脚本（v0.10）
+# Agent 小镇 策划案自审脚本（v0.10；v0.13 补扫描路径）
 # 检查：①正文引用的配置项在 CSV 中存在 ②章节引用目标存在 ③错误码在 3.1.2 清单中
 # 用法：python3 sim/校验脚本.py
+# 注意：匹配含「前缀收缩」，会漏报部分真实缺行（如开垦解锁tile数）；人工清单见 策划案/MVP缺口评估.md §3.3
 
 import csv, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MDS = sorted(ROOT.glob("*.md"))
+# 策划案迁入 策划案/ 后，正文不再位于仓库根目录（根目录仅 README.md）
+MDS = sorted((ROOT / "策划案").glob("*.md")) + sorted(ROOT.glob("*.md"))
 TABLES = {t.stem: t for t in (ROOT / "config").glob("*.csv")}
 
 # 载入 CSV 参数名
