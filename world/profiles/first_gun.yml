@@ -1,0 +1,4 @@
+# 第一枪：生存 + 市集（见策划案 8.7）
+plugins:
+  - survival
+  - market
