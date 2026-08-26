@@ -19,10 +19,13 @@ def test_unload_market_keeps_labor_and_eat():
     w.begin_tick()
     out = w.submit_action(aid, w.state.tick, 1, "work", {})
     assert out["accepted"]
-    eat = w.submit_action(aid, w.state.tick, 2, "eat", {"qty": 1})
+    w.end_tick()
+
+    w.begin_tick()
+    eat = w.submit_action(aid, w.state.tick, 1, "eat", {"qty": 1})
     assert eat["accepted"]
     try:
-        w.submit_action(aid, w.state.tick, 3, "order_place", {
+        w.submit_action(aid, w.state.tick, 2, "order_place", {
             "item": "food", "qty": 1, "price": 2, "side": "sell", "days": 1,
         })
         assert False, "order_place should be unknown"

@@ -8,7 +8,22 @@ from pathlib import Path
 
 from world.kernel.money import coins_to_cents, cents_to_coins
 from world.kernel.world import TownWorld
-from tests.conftest import enroll
+
+
+def enroll(world: TownWorld, name="张三", x=8, y=15, **extra):
+    owner = world.register_owner()
+    info = world.register_agent(owner["owner_id"], {
+        "name": name,
+        "traits_words": ["稳重", "肯干", "老实"],
+        "vocation": "农夫",
+        "backstory": "来讨生活",
+        "intro_npc": "npc_herald",
+    })
+    agent = world.state.agents[info["agent_id"]]
+    agent.x, agent.y = x, y
+    for k, v in extra.items():
+        setattr(agent, k, v)
+    return {**owner, **info, "agent": agent}
 
 OUT = Path("/opt/cursor/artifacts/m1_vertical_slice.json")
 

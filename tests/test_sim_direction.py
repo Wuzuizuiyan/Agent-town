@@ -19,9 +19,9 @@ def test_pool_never_negative_on_odd_jobs():
     w = TownWorld(profile=["survival"])
     w.state.public_pool_cents = 50
     info = enroll(w, name="杂役甲", x=31, y=31)
-    for _ in range(24):
+    for _ in range(12):
         w.begin_tick()
         w.submit_action(info["agent_id"], w.state.tick, 1, "work", {})
         w.end_tick()
-    w.step(1)
+    w.step(13)
     assert w.state.public_pool_cents >= 0

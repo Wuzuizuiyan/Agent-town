@@ -107,6 +107,32 @@ def test_market_match_and_tax():
     assert w.state.public_pool_cents > pool0
 
 
+def test_bind_and_warehouse():
+    from world.kernel.state import Building
+    w = TownWorld(profile=["survival", "construction"])
+    info = enroll(w, name="仓管甲", x=31, y=31, food=10)
+    bid = "bd_wh"
+    w.state.buildings[bid] = Building(
+        building_id=bid, kind="仓库", venue_kind="warehouse", effect_kind="warehouse",
+        x=47, y=35, w=2, h=2, status="done",
+    )
+    w.begin_tick()
+    bound = w.submit_action(info["agent_id"], w.state.tick, 1, "bind", {
+        "kind": "warehouse", "building_id": bid,
+    })
+    assert bound["accepted"]
+    w.end_tick()
+    info["agent"].x, info["agent"].y = 47, 35
+    w.begin_tick()
+    stored = w.submit_action(info["agent_id"], w.state.tick, 1, "warehouse", {
+        "op": "deposit", "item": "food", "qty": 3,
+    })
+    assert stored["accepted"]
+    assert info["agent"].food == 7
+    assert info["agent"].receipt_food == 3
+    w.end_tick()
+
+
 def test_talk_and_bounty_plugin_isolation():
     w = TownWorld(profile="full")
     a = enroll(w, name="社交甲", x=31, y=31)
