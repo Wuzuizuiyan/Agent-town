@@ -38,6 +38,7 @@ tags: [阅读, 项目]
 | 全部数值 | config/ 六张 CSV |
 | 改动历史与理由 | CHANGELOG.md |
 | 数值推算与平衡校验 | sim/校验报告.md |
+| 若要开工做 MVP 还差什么 | MVP缺口评估.md |
 
 ## 版本记录
 
