@@ -1,0 +1,180 @@
+{
+  "tile": 16,
+  "tiles": {
+    "tile": 16,
+    "cols": 8,
+    "order": [
+      "wild",
+      "water",
+      "well",
+      "hall",
+      "farm",
+      "waste",
+      "forest",
+      "dense",
+      "market",
+      "home",
+      "road",
+      "house",
+      "warehouse",
+      "tavern",
+      "bulletin",
+      "site"
+    ],
+    "map": {
+      "wild": {
+        "x": 0,
+        "y": 0,
+        "i": 0
+      },
+      "water": {
+        "x": 16,
+        "y": 0,
+        "i": 1
+      },
+      "well": {
+        "x": 32,
+        "y": 0,
+        "i": 2
+      },
+      "hall": {
+        "x": 48,
+        "y": 0,
+        "i": 3
+      },
+      "farm": {
+        "x": 64,
+        "y": 0,
+        "i": 4
+      },
+      "waste": {
+        "x": 80,
+        "y": 0,
+        "i": 5
+      },
+      "forest": {
+        "x": 96,
+        "y": 0,
+        "i": 6
+      },
+      "dense": {
+        "x": 112,
+        "y": 0,
+        "i": 7
+      },
+      "market": {
+        "x": 0,
+        "y": 16,
+        "i": 8
+      },
+      "home": {
+        "x": 16,
+        "y": 16,
+        "i": 9
+      },
+      "road": {
+        "x": 32,
+        "y": 16,
+        "i": 10
+      },
+      "house": {
+        "x": 48,
+        "y": 16,
+        "i": 11
+      },
+      "warehouse": {
+        "x": 64,
+        "y": 16,
+        "i": 12
+      },
+      "tavern": {
+        "x": 80,
+        "y": 16,
+        "i": 13
+      },
+      "bulletin": {
+        "x": 96,
+        "y": 16,
+        "i": 14
+      },
+      "site": {
+        "x": 112,
+        "y": 16,
+        "i": 15
+      }
+    }
+  },
+  "chibi": {
+    "w": 16,
+    "h": 24,
+    "poses": [
+      "idle",
+      "walk0",
+      "walk1",
+      "work",
+      "eat",
+      "sleep",
+      "talk",
+      "trade",
+      "frozen"
+    ],
+    "dirs": [
+      "s",
+      "w",
+      "e",
+      "n"
+    ],
+    "skins": [
+      "pale",
+      "warm_1",
+      "warm_2",
+      "tan",
+      "deep"
+    ],
+    "hair_styles": [
+      "short",
+      "short_bangs",
+      "bob",
+      "long",
+      "bun",
+      "messy",
+      "bald"
+    ],
+    "eyes": [
+      "round",
+      "narrow",
+      "bright"
+    ],
+    "tops": [
+      "work_shirt",
+      "vest",
+      "robe",
+      "apron",
+      "coat",
+      "tunic"
+    ],
+    "bottoms": [
+      "trousers",
+      "skirt",
+      "shorts",
+      "wrap"
+    ],
+    "accessories": [
+      "none",
+      "hat",
+      "scarf",
+      "glasses",
+      "flower",
+      "guard_helm"
+    ],
+    "hair_tint": true
+  },
+  "layers": [
+    "body",
+    "bottom",
+    "top",
+    "eyes",
+    "hair",
+    "acc"
+  ]
+}
