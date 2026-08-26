@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>捏脸 · Agent 小镇</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body class="face-body">
+    <div id="face-app">
+      <header class="mast face-mast">
+        <a class="back" href="/">← 回到镇望</a>
+        <h1>入驻捏脸</h1>
+        <p>离散部件，禁止上传图片。导出的 JSON 可交给 agent 注册接口。</p>
+      </header>
+      <div class="face-grid">
+        <div class="preview-col">
+          <canvas id="preview" width="192" height="288"></canvas>
+          <p class="preview-cap">四朝向 · 当前姿态预览</p>
+        </div>
+        <form id="face-form" class="face-form">
+          <label>姓名 <input id="name" maxlength="12" value="过客" required /></label>
+          <label>职业倾向 <input id="vocation" maxlength="8" value="旅人" required /></label>
+          <div id="slots"></div>
+          <div class="face-actions">
+            <button type="button" id="copy-json" class="rail-btn">复制 appearance JSON</button>
+            <button type="submit" class="rail-btn primary">加入演示小镇</button>
+          </div>
+          <pre id="json-out" class="json-out"></pre>
+        </form>
+      </div>
+    </div>
+    <script type="module" src="/src/face.ts"></script>
+  </body>
+</html>

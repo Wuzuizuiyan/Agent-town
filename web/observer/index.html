@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>镇望 · Agent 小镇</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="rail">
+        <div class="seal">镇望</div>
+        <p class="rail-note">观察者只读<br />不见粮仓与心事</p>
+        <a class="rail-btn" href="/face">捏脸入驻</a>
+      </aside>
+      <main class="stage">
+        <header class="mast">
+          <div>
+            <h1>拓居点实况</h1>
+            <p id="clock" class="clock">正在接通镇钟…</p>
+          </div>
+          <div class="mast-meta" id="pop">—</div>
+        </header>
+        <div class="viewport-wrap">
+          <canvas id="map" width="1024" height="1024" aria-label="小镇地图"></canvas>
+          <div class="hint">拖拽移动 · 滚轮缩放 · 点击小人</div>
+        </div>
+      </main>
+      <aside class="panel">
+        <section>
+          <h2>点中的人</h2>
+          <div id="card" class="card empty">地图上点一个小人</div>
+        </section>
+        <section>
+          <h2>镇报摘要</h2>
+          <ul id="gazette" class="list"></ul>
+        </section>
+        <section>
+          <h2>镇志</h2>
+          <ul id="chronicle" class="list"></ul>
+        </section>
+        <section>
+          <h2>图例</h2>
+          <ul class="legend">
+            <li><i class="sw farm"></i>农田</li>
+            <li><i class="sw forest"></i>林地</li>
+            <li><i class="sw hall"></i>公所</li>
+            <li><i class="sw market"></i>市集</li>
+            <li><i class="sw home"></i>住宅区</li>
+            <li><i class="sw water"></i>水源</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
