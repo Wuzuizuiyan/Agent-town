@@ -39,10 +39,10 @@ class Log:
         self.state = state
 
     def write(self, etype: str, actor: str | None = None, params: dict | None = None,
-              result: str = "success", region: str | None = None) -> Event:
+              result: str = "success", region: str | None = None, day: int | None = None) -> Event:
         ev = Event(
             tick=self.state.tick,
-            day=self.state.day,
+            day=self.state.day if day is None else day,
             ts=datetime.now(TZ).isoformat(),
             region=region,
             actor=actor,

@@ -93,8 +93,17 @@ def _sleep(ctx, actor, params):
     empty_residential = region == "residential" and venue is None
     if not (on_own_house or empty_residential):
         raise TownError("E1006")
+    # 管线第 1 步已按清醒衰减精力；本 tick 既已睡眠，改为睡眠恢复（2.4.1）
+    cfg = ctx.config
+    hardy = cfg.trait_mul(actor.trait, "精力衰减率")
+    sleeper = cfg.trait_mul(actor.trait, "睡眠精力恢复")
+    house_m = cfg.f("住宅睡眠加成", 1.3) if actor.house_id else 1.0
+    drained = cfg.f("精力衰减率", 2) * hardy
+    restore = cfg.f("睡眠精力恢复", 8) * house_m * sleeper
+    actor.energy += drained + restore
     actor.slept = True
     actor.time_remaining = 0
+    ctx.needs.clamp(actor.agent_id)
     return {"slept": True}
 
 
@@ -258,7 +267,9 @@ def _produce(ctx, world):
         mint = min(mint_cap, coins_to_cents(mint_rate * mint_h, world.places))
         if mint:
             ctx.ledger.credit(a.agent_id, "coins", mint)
-            ctx.log.write("MINT", actor=a.agent_id, params={"cents": mint})
+            # 日结在次日 00:00 触发，铸币属于刚结束的那一镇内日
+            settled = world.state.day - 1 if world.state.hour == 0 else world.state.day
+            ctx.log.write("MINT", actor=a.agent_id, params={"cents": mint}, day=settled)
         odd_h = a.day_hours.get("odd", 0)
         if odd_h:
             odd_need.append((a, int(odd_wage * odd_h)))
