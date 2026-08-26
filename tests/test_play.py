@@ -85,7 +85,10 @@ def test_day_settle_pays_food_and_mint():
     w.step(1)  # tick 25 = 日结
     assert agent.food > food_before
     assert agent.coins_cents > coins_before
-    assert any(ev.type == "MINT" for ev in w.state.events)
+    mint_ev = [ev for ev in w.state.events if ev.type == "MINT"]
+    assert mint_ev
+    assert all(ev.day == 1 for ev in mint_ev)
+    assert w.state.stats.get("mint_cents", 0) > 0
 
 
 def test_market_match_and_tax():
@@ -146,3 +149,39 @@ def test_talk_and_bounty_plugin_isolation():
     w.reload_plugins([p for p in w.profile if p != "bounty"])
     assert w.bus.action_handler("bounty_post") is None
     assert w.bus.action_handler("work") is not None
+
+
+def test_rejected_action_keeps_agent_identity():
+    w = TownWorld(profile=["survival"])
+    info = enroll(w, x=8, y=15, food=5)
+    agent = info["agent"]
+    w.begin_tick()
+    try:
+        w.submit_action(info["agent_id"], w.state.tick, 1, "eat", {"qty": 0})
+        assert False
+    except TownError as e:
+        assert e.code == "E1001"
+    assert agent is w.state.agents[info["agent_id"]]
+    energy_at_reject = agent.energy
+    w.end_tick()
+    w.begin_tick()
+    assert agent is w.state.agents[info["agent_id"]]
+    assert agent.energy < energy_at_reject
+    w.end_tick()
+
+
+def test_sleep_restores_energy_this_tick():
+    w = TownWorld(profile=["survival"])
+    info = enroll(w, x=23, y=51)
+    agent = info["agent"]
+    w.step(5)
+    w.begin_tick()
+    energy_after_decay = agent.energy
+    out = w.submit_action(info["agent_id"], w.state.tick, 1, "sleep", {})
+    assert out["accepted"]
+    # 清醒衰减已在第 1 步扣过；睡眠 tick 应改为 +8（无住宅加成）
+    assert agent.energy == energy_after_decay + 2 + 8
+    w.end_tick()
+    w.begin_tick()
+    assert agent.energy == energy_after_decay + 8
+    w.end_tick()
