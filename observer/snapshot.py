@@ -63,6 +63,30 @@ def person_payload(agent: Agent) -> dict:
     return payload
 
 
+def _public_headlines(gazette: dict) -> list[str]:
+    out = []
+    for h in gazette.get("headlines") or []:
+        s = str(h)
+        if s.startswith("WORLD_EVENT"):
+            if "pest" in s:
+                out.append("虫灾")
+            elif "storm" in s:
+                out.append("暴风雨")
+            elif "boom" in s:
+                out.append("市集繁荣")
+            elif "caravan" in s:
+                out.append("商队到访")
+            else:
+                out.append("世界事件")
+        elif s.startswith("BOUNTY"):
+            out.append("悬赏动态")
+        elif s.startswith("LAW"):
+            out.append("镇规执法")
+        else:
+            out.append(s)
+    return out
+
+
 def build_snapshot(world) -> dict:
     state: WorldState = world.state
     venues = []
@@ -85,6 +109,7 @@ def build_snapshot(world) -> dict:
     people = [person_payload(a) for a in state.agents.values()]
     people.sort(key=lambda p: (p["kind"] != "npc", p["id"]))
     gazette = dict(state.gazette or {})
+    gazette["headlines"] = _public_headlines(gazette)
     gazette.setdefault("population", len(world.agents.settlers()))
     gazette.setdefault("pool", 0)
     return {
