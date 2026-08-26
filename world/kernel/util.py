@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import fields, is_dataclass
 from typing import Any
 
 from world.kernel.errors import TownError
@@ -42,9 +43,27 @@ def snapshot_state(state: WorldState) -> dict[str, Any]:
     })
 
 
+def _copy_dataclass(dst: Any, src: Any) -> None:
+    for f in fields(src):
+        setattr(dst, f.name, copy.deepcopy(getattr(src, f.name)))
+
+
 def restore_state(state: WorldState, snap: dict[str, Any]) -> None:
+    """回滚快照。agents 就地写回，避免拒绝动作后外部持有的 Agent 引用失效。"""
+    agents_snap = snap.get("agents")
+    if isinstance(agents_snap, dict):
+        live = state.agents
+        for aid in list(live.keys()):
+            if aid not in agents_snap:
+                live.pop(aid, None)
+        for aid, src in agents_snap.items():
+            dst = live.get(aid)
+            if dst is not None and is_dataclass(dst) and is_dataclass(src) and type(dst) is type(src):
+                _copy_dataclass(dst, src)
+            else:
+                live[aid] = src
     for k, v in snap.items():
-        if k == "day_hours":
+        if k in ("agents", "day_hours"):
             continue
         setattr(state, k, v)
     for aid, hours in snap.get("day_hours", {}).items():
