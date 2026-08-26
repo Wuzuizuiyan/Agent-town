@@ -84,12 +84,17 @@ def _spawn_trader(ctx, world):
     row = ctx.config.npc_by_id_or_name("npc_trader")
     if not row:
         return
+    from observer.appearance import appearance_from_npc_row
+    from observer.labels import NPC_STANCE
     ag = Agent(
         agent_id="npc_trader", owner_id="system", name=row.get("NPC名") or "老商",
         token="npc", trait=None, trait_words=(row.get("性格三词") or "").split(),
         vocation=row.get("职能") or "", backstory="", intro_npc="",
         x=47, y=35, kind="npc", npc_id="npc_trader", region_home="market",
+        appearance=appearance_from_npc_row(row, ctx.config.appearance),
     )
+    stance = NPC_STANCE.get("npc_trader", ("trade", "行商"))
+    ag.activity_action, ag.activity_label = stance
     world.state.agents["npc_trader"] = ag
     ctx.log.write("WORLD_EVENT", params={"npc": "npc_trader", "op": "arrive"})
 

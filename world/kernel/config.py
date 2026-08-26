@@ -1,4 +1,4 @@
-"""加载 config/ 六张 CSV。非法行保留旧值的热更在 World.reload_config。"""
+"""加载 config/ 七张 CSV。非法行保留旧值的热更在 World.reload_config。"""
 
 from __future__ import annotations
 
@@ -39,6 +39,11 @@ class ConfigSnapshot:
                 self.traits[name] = entry
             if api:
                 self.traits[api] = entry
+        from observer.appearance import load_catalog
+        try:
+            self.appearance = load_catalog(self.root)
+        except FileNotFoundError:
+            self.appearance = {}
 
     def _kv(self, path: Path, key: str = "参数名") -> tuple[dict[str, str], dict[str, tuple[str, str]]]:
         data: dict[str, str] = {}

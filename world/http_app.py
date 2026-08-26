@@ -8,10 +8,13 @@ import json
 import os
 import threading
 import time
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Header, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from world.kernel.errors import TownError
 from world.kernel.world import TownWorld
@@ -58,8 +61,14 @@ def _bearer(authorization: str | None) -> str:
 
 
 def create_app(world: TownWorld | None = None) -> FastAPI:
-    app = FastAPI(title="Agent 小镇", version="0.15.0")
+    app = FastAPI(title="Agent 小镇", version="0.16.0")
     w = world
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     def town() -> TownWorld:
         return w if w is not None else get_world()
@@ -222,6 +231,59 @@ def create_app(world: TownWorld | None = None) -> FastAPI:
         body = await _json(request)
         return envelope_ok(t, t.gm_bounty(body))
 
+    @app.patch("/v1/agents/{agent_id}/appearance")
+    async def patch_appearance(agent_id: str, request: Request, authorization: str | None = Header(default=None)):
+        t = town()
+        kind, oid = t.auth(_bearer(authorization))
+        if kind != "owner":
+            raise TownError("E1001", "鉴权失败")
+        body = await _json(request)
+        data = t.update_appearance(oid, agent_id, body.get("appearance") or body)
+        return envelope_ok(t, {"appearance": data})
+
+    @app.get("/v1/observer/snapshot")
+    def observer_snapshot():
+        t = town()
+        from observer.snapshot import build_snapshot
+        return envelope_ok(t, build_snapshot(t))
+
+    @app.get("/v1/observer/catalog")
+    def observer_catalog():
+        t = town()
+        from observer.appearance import catalog_public
+        return envelope_ok(t, catalog_public(t.cfg.appearance))
+
+    @app.get("/v1/observer/chronicle")
+    def observer_chronicle(day: int | None = Query(default=None)):
+        t = town()
+        rows = t.chronicle()
+        if day is not None:
+            rows = [r for r in rows if r.get("day") == day]
+        return envelope_ok(t, rows)
+
+    @app.post("/v1/observer/demo/join")
+    async def demo_join(request: Request):
+        t = town()
+        from observer.demo import join_demo
+        body = await _json(request)
+        return envelope_ok(t, join_demo(t, body))
+
+    root = Path(__file__).resolve().parents[1]
+    assets = root / "assets"
+    dist = root / "web" / "observer" / "dist"
+    if assets.is_dir():
+        app.mount("/media", StaticFiles(directory=str(assets)), name="media")
+
+    @app.get("/face")
+    def face_page():
+        p = dist / "face.html"
+        if p.is_file():
+            return FileResponse(p)
+        return JSONResponse({"ok": False, "error": {"code": "E1001", "message": "请先构建 web/observer"}}, status_code=404)
+
+    if dist.is_dir():
+        app.mount("/", StaticFiles(directory=str(dist), html=True), name="observer_web")
+
     return app
 
 
@@ -284,6 +346,9 @@ def _clock_loop(world: TownWorld, stop: threading.Event) -> None:
             continue
         try:
             world.begin_tick()
+            if getattr(world, "observer_demo", False) or world.state.plugin_data.get("demo_seeded"):
+                from observer.demo import drive_demo
+                drive_demo(world)
             push_webhooks(world)
             seconds = world.cfg.f("tick现实秒数", 3600) / max(world.state.speed, 0.001)
             deadline = time.time() + max(0.05, seconds)
@@ -303,6 +368,9 @@ def _clock_loop(world: TownWorld, stop: threading.Event) -> None:
 def main() -> None:
     import uvicorn
     world = get_world()
+    if os.environ.get("TOWN_OBSERVER_DEMO") == "1":
+        from observer.demo import seed_demo
+        seed_demo(world)
     app = create_app(world)
     stop = threading.Event()
     if os.environ.get("TOWN_NO_CLOCK") != "1":

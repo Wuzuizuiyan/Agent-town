@@ -28,6 +28,8 @@ from world.kernel.util import (
     restore_state,
     snapshot_state,
 )
+from observer.appearance import AppearanceError, DEFAULT_APPEARANCE, appearance_from_npc_row, validate_appearance
+from observer.labels import NPC_STANCE, label_of
 
 PLUGIN_MODULES = {
     "survival": "world.plugins.survival.plugin",
@@ -147,6 +149,11 @@ class TownWorld:
             dist = manhattan(actor.x, actor.y, x, y)
             if dist == 0:
                 return {"moved": False}
+            dx, dy = x - actor.x, y - actor.y
+            if abs(dx) >= abs(dy) and dx != 0:
+                actor.facing = "e" if dx > 0 else "w"
+            elif dy != 0:
+                actor.facing = "s" if dy > 0 else "n"
             per = self.cfg.f("移动每tile耗时", 5)
             path = [(actor.x, actor.y)] + self.map.manhattan_path(actor.x, actor.y, x, y)
             if self.map.all_road(path):
@@ -176,6 +183,10 @@ class TownWorld:
             x, y = REGION_NPC_XY.get(api, (31, 31))
             aid = nid
             token = secrets.token_urlsafe(8)
+            try:
+                looks = appearance_from_npc_row(row, self.cfg.appearance)
+            except AppearanceError:
+                looks = dict(DEFAULT_APPEARANCE)
             ag = Agent(
                 agent_id=aid, owner_id="system", name=row.get("NPC名") or nid,
                 token=token, trait=None,
@@ -183,7 +194,10 @@ class TownWorld:
                 vocation=row.get("职能") or "", backstory="", intro_npc="",
                 x=x, y=y, kind="npc", npc_id=nid, region_home=api,
                 satiety=100, energy=100, mood=50, food=0, wood=0, coins_cents=0,
+                appearance=looks,
             )
+            stance = NPC_STANCE.get(nid, ("idle", "值守"))
+            ag.activity_action, ag.activity_label = stance
             self.state.agents[aid] = ag
 
     def register_owner(self, invite_code: str | None = None) -> dict:
@@ -231,6 +245,10 @@ class TownWorld:
             trait = self.cfg.traits[trait].get("特质名") or trait
         if mode == "push" and not webhook_url:
             raise TownError("E1001")
+        try:
+            appearance = validate_appearance(card.get("appearance"), self.cfg.appearance)
+        except AppearanceError as e:
+            raise TownError("E1001", e.message) from e
         aid = self.state.nid("a")
         token = secrets.token_urlsafe(24)
         x, y = self.cfg.i("投放坐标x", 23), self.cfg.i("投放坐标y", 51)
@@ -244,6 +262,7 @@ class TownWorld:
             coins_cents=coins_to_cents(self.cfg.f("启动金", 20), self.places),
             reputation=self.cfg.f("声誉基础分", 50),
             rank=rank_of(self.cfg.f("声誉基础分", 50), self.cfg),
+            appearance=appearance,
         )
         self.state.agents[aid] = ag
         self.state.tokens[token] = ("agent", aid)
@@ -253,6 +272,16 @@ class TownWorld:
         rel.value = 20
         self.log.write("AGENT_ACTION", actor=aid, params={"action": "register", "name": name})
         return {"agent_id": aid, "agent_token": token, "mode": mode}
+
+    def update_appearance(self, owner_id: str, agent_id: str, appearance: dict) -> dict:
+        a = self.state.agents.get(agent_id)
+        if not a or a.kind != "settler" or a.owner_id != owner_id:
+            raise TownError("E1001", "鉴权失败")
+        try:
+            a.appearance = validate_appearance(appearance, self.cfg.appearance)
+        except AppearanceError as e:
+            raise TownError("E1001", e.message) from e
+        return dict(a.appearance)
 
     def begin_tick(self) -> None:
         if self.state.paused:
@@ -265,12 +294,22 @@ class TownWorld:
         if self.state.hour == 0 and self.state.tick > 1:
             self._daily_settle()
         budget = self.cfg.i("每tick时间预算", 60)
-        for a in self.agents.settlers():
-            a.time_remaining = budget
-            a.slept = False
-            a.acted_this_tick = False
-            a.talks_this_tick = 0
-            a.intel_this_tick = 0
+        for a in self.state.agents.values():
+            if a.kind == "settler":
+                a.time_remaining = budget
+                a.slept = False
+                a.acted_this_tick = False
+                a.talks_this_tick = 0
+                a.intel_this_tick = 0
+            if a.frozen:
+                a.activity_action = "frozen"
+                a.activity_label = "离线睡眠"
+            elif a.kind == "npc":
+                stance = NPC_STANCE.get(a.npc_id or "", ("idle", "值守"))
+                a.activity_action, a.activity_label = stance
+            else:
+                a.activity_action = "idle"
+                a.activity_label = "待机"
         self.bus.run_hooks("tick", 1, self)
 
     def end_tick(self) -> None:
@@ -359,6 +398,9 @@ class TownWorld:
         try:
             result = handler(agent, params) or {}
             agent.acted_this_tick = True
+            agent.activity_action = action
+            agent.activity_label = label_of(action)
+            agent.activity_tick = tick
             self.log.write(
                 "AGENT_ACTION", actor=agent_id,
                 params={"action": action, "seq": seq, "params": params, "result": result},

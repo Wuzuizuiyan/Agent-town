@@ -59,6 +59,13 @@ class Agent:
     npc_id: str | None = None
     region_home: str | None = None
     last_region_snapshot: dict[str, Any] = field(default_factory=dict)
+    appearance: dict[str, str] = field(default_factory=dict)
+    facing: str = "s"
+    activity_action: str = "idle"
+    activity_label: str = "待机"
+    activity_tick: int = 0
+    demo: bool = False
+    plugin_meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

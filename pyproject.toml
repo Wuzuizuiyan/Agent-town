@@ -1,7 +1,7 @@
 [project]
 name = "agent-town"
-version = "0.15.0"
-description = "Agent 小镇世界运行时（内核 + 机制插件）"
+version = "0.16.0"
+description = "Agent 小镇世界运行时（内核 + 机制插件 + 观测站）"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.110",
@@ -22,7 +22,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.setuptools.packages.find]
-include = ["world*"]
+include = ["world*", "observer*"]
 
 [tool.setuptools.package-data]
 world = ["profiles/*.yml"]

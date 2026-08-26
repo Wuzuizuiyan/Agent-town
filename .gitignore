@@ -8,3 +8,6 @@ build/
 .venv/
 venv/
 *.db
+node_modules/
+web/observer/dist/
+

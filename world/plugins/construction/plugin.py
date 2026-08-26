@@ -249,12 +249,17 @@ def _activate_npc(ctx, npc_id, x, y):
     if not row:
         return
     from world.kernel.state import Agent
+    from observer.appearance import appearance_from_npc_row
+    from observer.labels import NPC_STANCE
     ag = Agent(
         agent_id=npc_id, owner_id="system", name=row.get("NPC名") or npc_id,
         token="npc", trait=None, trait_words=(row.get("性格三词") or "").split(),
         vocation=row.get("职能") or "", backstory="", intro_npc="",
         x=x, y=y, kind="npc", npc_id=npc_id,
+        appearance=appearance_from_npc_row(row, ctx.config.appearance),
     )
+    stance = NPC_STANCE.get(npc_id, ("idle", "值守"))
+    ag.activity_action, ag.activity_label = stance
     ctx.world.state.agents[npc_id] = ag
     ctx.log.write("WORLD_EVENT", params={"npc": npc_id, "op": "arrive"})
 
